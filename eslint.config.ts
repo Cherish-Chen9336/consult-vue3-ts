@@ -46,11 +46,12 @@ export default defineConfigWithVueTs(
       ],
 
       // 允许在 <script setup> 中解构 props，不报错
-      'vue/no-setup-props-destructure': ['off'] // 关闭该规则
+      'vue/no-setup-props-destructure': ['off'], // 关闭该规则
 
       // 未定义的变量报错（如未引入就使用的变量）
       // 💡 默认 create-vue 项目里是关闭的，但为了演示需要这里开启
-      // 'no-undef': 'error' // 触发级别为 "错误"
+      'no-undef': 'error' // 触发级别为 "错误",
+      // 'no-console': 'off'
     }
   }
 )
