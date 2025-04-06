@@ -11,6 +11,24 @@ const getUser = () => {
     method: 'GET'
   })
 }
+
+const login = () => {
+  axios
+    .request({
+      url: 'login/password',
+      method: 'POST',
+      data: {
+        mobile: '13211112222',
+        password: 'abc12345'
+      }
+    })
+    .then((res) => {
+      console.log('成功', res)
+    })
+    .catch((err) => {
+      console.log('失败', err)
+    })
+}
 </script>
 
 <template>
@@ -32,6 +50,7 @@ const getUser = () => {
     </van-button>
     <van-button type="primary" @click="store.delUser()">退出</van-button>
     <van-button @click="getUser">获取用户信息</van-button>
+    <van-button @click="login">接口登录</van-button>
   </div>
 </template>
 @/stores/modules/user
