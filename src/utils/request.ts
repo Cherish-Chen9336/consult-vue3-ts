@@ -1,5 +1,6 @@
+import router from '@/router'
 import { useUserStore } from '@/stores'
-import axios from 'axios'
+import axios, { AxiosError, type Method } from 'axios'
 import { showToast } from 'vant'
 
 const instance = axios.create({
@@ -28,7 +29,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   function (res) {
     // 对响应数据做点什么
-    // TODO 3. 处理业务失败
+    // 3. 处理业务失败
     if (res.data?.code !== 10000) {
       // 错误提示
       showToast(res.data.message || '业务失败')
@@ -36,14 +37,36 @@ instance.interceptors.response.use(
       return Promise.reject(res.data)
       // 传入 code 将来catch 的时候使用
     }
-    // TODO 4. 摘取核心响应数据
+    // 4. 摘取核心响应数据
     return res.data
   },
-  function (error) {
+  function (err: AxiosError) {
     // 对响应错误做点什么
-    // TODO 5. 处理 401 错误
-    return Promise.reject(error)
+    // 5. 处理 401 错误
+    if (err.response?.status === 401) {
+      // 清除本地用户信息
+      const store = useUserStore()
+      store.delUser()
+      // 跳转登录页面，携带现在访问的页面地址(路由传参)
+      router.push({
+        path: '/login',
+        query: { returnUrl: router.currentRoute.value.fullPath }
+      })
+    }
+    return Promise.reject(err)
   }
 )
 
 export default instance
+
+export const request = (
+  url: string,
+  method: Method = 'GET',
+  submitData?: object
+) => {
+  return instance.request({
+    url,
+    method,
+    [method.toUpperCase() === 'GET' ? 'params' : 'data']: submitData
+  })
+}

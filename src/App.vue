@@ -1,27 +1,33 @@
 <script setup lang="ts">
 import { Button as VanButton } from 'vant'
 import { useUserStore } from '@/stores'
-import axios from './utils/request'
+// import axios from './utils/request'
+import { request } from './utils/request'
 
 const store = useUserStore()
 
 const getUser = () => {
-  axios.request({
-    url: 'patient/myUser',
-    method: 'GET'
-  })
+  // axios.request({
+  //   url: 'patient/myUser',
+  //   method: 'GET'
+  // })
+  request('patient/myUser')
 }
 
 const login = () => {
-  axios
-    .request({
-      url: 'login/password',
-      method: 'POST',
-      data: {
-        mobile: '13211112222',
-        password: 'abc12345'
-      }
-    })
+  // axios
+  //   .request({
+  //     url: 'login/password',
+  //     method: 'POST',
+  //     data: {
+  //       mobile: '13211112222',
+  //       password: 'abc12345'
+  //     }
+  //   })
+  request('login/password', 'POST', {
+    mobile: '13211112222',
+    password: 'abc12345'
+  })
     .then((res) => {
       console.log('成功', res)
     })
