@@ -1,9 +1,8 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="app">
-    <!-- 路由出口 - 一级路由出口 -->
-    <router-view></router-view>
+  <div class="login-page">
+    <van-checkbox>复选框</van-checkbox>
   </div>
 </template>
 
