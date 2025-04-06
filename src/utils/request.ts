@@ -59,12 +59,18 @@ instance.interceptors.response.use(
 
 export default instance
 
-export const request = (
+type Data<T> = {
+  code: number
+  message: string
+  data: T
+}
+
+export const request = <T>(
   url: string,
   method: Method = 'GET',
   submitData?: object
 ) => {
-  return instance.request({
+  return instance.request<unknown, Data<T>>({
     url,
     method,
     [method.toUpperCase() === 'GET' ? 'params' : 'data']: submitData

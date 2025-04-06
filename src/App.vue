@@ -3,6 +3,7 @@ import { Button as VanButton } from 'vant'
 import { useUserStore } from '@/stores'
 // import axios from './utils/request'
 import { request } from './utils/request'
+import type { User } from './types/user'
 
 const store = useUserStore()
 
@@ -24,12 +25,12 @@ const login = () => {
   //       password: 'abc12345'
   //     }
   //   })
-  request('login/password', 'POST', {
+  request<User>('login/password', 'POST', {
     mobile: '13211112222',
     password: 'abc12345'
   })
     .then((res) => {
-      console.log('成功', res)
+      console.log('成功', res.data.account)
     })
     .catch((err) => {
       console.log('失败', err)
