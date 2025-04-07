@@ -11,6 +11,6 @@ const router = createRouter({
   ]
 })
 
-console.log(import.meta)
+// console.log(import.meta)
 
 export default router
