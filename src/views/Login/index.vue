@@ -1,16 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { mobileRules, passwordRules } from '@/utils/rules'
-import { showToast } from 'vant'
+import { mobileRules, passwordRules, codeRules } from '@/utils/rules'
+import { showSuccessToast, showToast } from 'vant'
+import { loginByPassword } from '@/services/user'
+import { useUserStore } from '@/stores'
+import { useRoute, useRouter } from 'vue-router'
 
 const mobile = ref('')
 const password = ref('')
 const agree = ref(false)
 
-const onSubmit = () => {
+const store = useUserStore()
+const router = useRouter()
+const route = useRoute()
+
+const onSubmit = async () => {
   if (!agree.value) return showToast('请勾选协议')
-  // TODO 进行登录逻辑
+  // 发出登录请求
+  const res = await loginByPassword(password.value, mobile.value)
+  // console.log(res)
+  // 将用户信息保存到仓库中
+  store.setUser(res.data)
+  // 成功提示
+  showSuccessToast('登录成功')
+  // 跳转页面
+  router.replace((route.query.returnUrl as string) || '/user')
 }
+
+// 短信验证码登录
+const isPass = ref(true)
+const code = ref('')
 </script>
 
 <template>
@@ -22,9 +41,11 @@ const onSubmit = () => {
     ></cp-nav-bar>
     <!-- 头部区域 -->
     <div class="login-head">
-      <h3>密码登录</h3>
+      <h3>{{ isPass ? '密码登录' : '短信验证码登录' }}</h3>
       <a href="javascript:;">
-        <span>短信验证码登录</span>
+        <span @click="isPass = !isPass">
+          {{ isPass ? '短信验证码登录' : '密码登录' }}
+        </span>
         <van-icon name="arrow"></van-icon>
       </a>
     </div>
@@ -38,11 +59,22 @@ const onSubmit = () => {
         type="tel"
       ></van-field>
       <van-field
+        v-if="isPass"
         v-model="password"
         placeholder="请输入密码"
         type="password"
         :rules="passwordRules"
       ></van-field>
+      <van-field
+        v-model="code"
+        :rules="codeRules"
+        v-else
+        placeholder="请输入验证码"
+      >
+        <template #button>
+          <span class="btn-send">发送验证码</span>
+        </template>
+      </van-field>
       <div class="cp-cell">
         <van-checkbox v-model="agree">
           <span>我已同意</span>
@@ -52,9 +84,9 @@ const onSubmit = () => {
         </van-checkbox>
       </div>
       <div class="cp-cell">
-        <van-button native-type="submit" block round type="primary"
-          >登 录</van-button
-        >
+        <van-button native-type="submit" block round type="primary">
+          登 录
+        </van-button>
       </div>
       <div class="cp-cell">
         <a href="javascript:;">忘记密码</a>
@@ -119,6 +151,13 @@ const onSubmit = () => {
         color: var(--cp-primary);
         padding: 0 5px;
       }
+    }
+  }
+
+  .btn-send {
+    color: var(--cp-primary);
+    &.active {
+      color: rgba(22, 194, 163, 0.5);
     }
   }
 }
