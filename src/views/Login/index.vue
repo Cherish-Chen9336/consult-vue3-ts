@@ -59,6 +59,9 @@ const onSend = async () => {
 onUnmounted(() => {
   clearInterval(timer)
 })
+
+// 是否显示密码
+const isShow = ref(false)
 </script>
 
 <template>
@@ -93,9 +96,17 @@ onUnmounted(() => {
         v-if="isPass"
         v-model="password"
         placeholder="请输入密码"
-        type="password"
+        :type="`${isShow ? 'text' : 'password'}`"
         :rules="passwordRules"
-      ></van-field>
+      >
+        <template #button>
+          <cp-icon
+            @click="isShow = !isShow"
+            :name="`login-eye-${isShow ? 'on' : 'off'}`"
+            style="margin-right: 10px"
+          ></cp-icon>
+        </template>
+      </van-field>
       <van-field
         v-model="code"
         v-else
@@ -125,9 +136,7 @@ onUnmounted(() => {
         <a href="javascript:;">忘记密码</a>
       </div>
     </van-form>
-    <svg aria-hidden="true">
-      <use href="#icon-consult-alipay" />
-    </svg>
+
     <!-- 底部区域 -->
     <div class="login-other">
       <van-divider>第三方登录</van-divider>
