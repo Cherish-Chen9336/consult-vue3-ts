@@ -1,10 +1,17 @@
 // 用户相关的 api接口函数
 
-import type { User } from '@/types/user'
+import type { CodeType, User } from '@/types/user'
 import { request } from '@/utils/request'
 
-// 登录接口
+// 密码登录接口
 
-export const loginByPassword = (password: string, mobile: string) => {
-  return request<User>('/login/password', 'POST', { password, mobile })
-}
+export const loginByPassword = (password: string, mobile: string) =>
+  request<User>('/login/password', 'POST', { password, mobile })
+
+// 发送验证码
+export const sendMobileCode = (mobile: string, type: CodeType) =>
+  request('/code', 'GET', { mobile, type })
+
+// 短信验证码登录
+export const loginByMobile = (mobile: string, code: string) =>
+  request<User>('/login', 'POST', { mobile, code })

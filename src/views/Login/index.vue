@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { mobileRules, passwordRules, codeRules } from '@/utils/rules'
-import { showSuccessToast, showToast } from 'vant'
-import { loginByPassword } from '@/services/user'
+import { showSuccessToast, showToast, type FormInstance } from 'vant'
+import { loginByPassword, sendMobileCode, loginByMobile } from '@/services/user'
 import { useUserStore } from '@/stores'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -17,9 +17,13 @@ const route = useRoute()
 const onSubmit = async () => {
   if (!agree.value) return showToast('请勾选协议')
   // 发出登录请求
-  const res = await loginByPassword(password.value, mobile.value)
+  // 判断是短信验证码还是密码登录
+  const res = isPass.value
+    ? await loginByPassword(password.value, mobile.value)
+    : await loginByMobile(mobile.value, code.value)
   // console.log(res)
   // 将用户信息保存到仓库中
+
   store.setUser(res.data)
   // 成功提示
   showSuccessToast('登录成功')
@@ -27,9 +31,34 @@ const onSubmit = async () => {
   router.replace((route.query.returnUrl as string) || '/user')
 }
 
-// 短信验证码登录
+// 短信验证码界面切换
 const isPass = ref(true)
 const code = ref('')
+
+// 发送短信验证码
+const form = ref<FormInstance>()
+const time = ref(0)
+let timer: number
+
+const onSend = async () => {
+  await form.value?.validate('mobile')
+  await sendMobileCode(mobile.value, 'login')
+  showToast('发送成功')
+  // 开启定时器
+  time.value = 10
+  // 开启之前确保没有定时器在运行
+  if (timer) clearInterval(timer)
+  timer = setInterval(() => {
+    time.value--
+    if (time.value <= 0) clearInterval(timer)
+  }, 1000)
+}
+
+// 在组件卸载时再清除定时器
+
+onUnmounted(() => {
+  clearInterval(timer)
+})
 </script>
 
 <template>
@@ -39,6 +68,7 @@ const code = ref('')
       right-text="注册"
       @click-right="$router.push('/register')"
     ></cp-nav-bar>
+
     <!-- 头部区域 -->
     <div class="login-head">
       <h3>{{ isPass ? '密码登录' : '短信验证码登录' }}</h3>
@@ -51,9 +81,10 @@ const code = ref('')
     </div>
 
     <!-- 表单区域 -->
-    <van-form @submit="onSubmit">
+    <van-form @submit="onSubmit" ref="form">
       <van-field
         v-model="mobile"
+        name="mobile"
         placeholder="请输入手机号"
         :rules="mobileRules"
         type="tel"
@@ -67,12 +98,14 @@ const code = ref('')
       ></van-field>
       <van-field
         v-model="code"
-        :rules="codeRules"
         v-else
+        :rules="codeRules"
         placeholder="请输入验证码"
       >
         <template #button>
-          <span class="btn-send">发送验证码</span>
+          <span @click="onSend" class="btn-send" :class="{ active: time > 0 }">
+            {{ time > 0 ? `${time}s后重新发送` : '发送验证码' }}
+          </span>
         </template>
       </van-field>
       <div class="cp-cell">
@@ -92,7 +125,9 @@ const code = ref('')
         <a href="javascript:;">忘记密码</a>
       </div>
     </van-form>
-
+    <svg aria-hidden="true">
+      <use href="#icon-consult-alipay" />
+    </svg>
     <!-- 底部区域 -->
     <div class="login-other">
       <van-divider>第三方登录</van-divider>
