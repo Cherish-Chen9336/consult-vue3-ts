@@ -34,6 +34,7 @@ const onClickLeft = () => {
   <van-nav-bar
     :title="title"
     @click-left="onClickLeft"
+    fixed
     left-arrow
     :right-text="rightText"
     @click-right="onClickRight"

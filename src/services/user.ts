@@ -1,6 +1,6 @@
 // 用户相关的 api接口函数
 
-import type { CodeType, User, UserInfo } from '@/types/user'
+import type { CodeType, PatientList, User, UserInfo } from '@/types/user'
 import { request } from '@/utils/request'
 
 // 密码登录接口
@@ -18,3 +18,7 @@ export const loginByMobile = (mobile: string, code: string) =>
 
 // 获取用户信息
 export const getUserInfo = () => request<UserInfo>('/patient/myUser', 'GET')
+
+// 查询患者详情
+export const getPatientList = () =>
+  request<PatientList>('/patient/mylist', 'GET')

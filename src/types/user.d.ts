@@ -43,3 +43,24 @@ export type UserInfo = OmitUser & {
     finishedNumber: number
   }
 }
+
+// 患者类型
+export type Patient = {
+  /**患者姓名 */
+  name: string
+  /**患者身份证号 */
+  idCard: string
+  /**性别 1 男 0 女 */
+  gender: number
+  /**性别值 */
+  genderValue: string
+  /**默认患者 1默认 0不默认 */
+  defaultFlag: number
+  /**患者 id */
+  id: string
+  /**年龄 */
+  age: string
+}
+
+// 家庭档案 - 患者信息列表
+export type PatientList = Patient[]

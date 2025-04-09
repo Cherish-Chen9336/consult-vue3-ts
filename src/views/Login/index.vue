@@ -149,9 +149,9 @@ const isShow = ref(false)
 
 <style lang="scss" scoped>
 .login {
-  // &-page {
-  //   padding-top: 46px;
-  // }
+  &-page {
+    padding-top: 46px;
+  }
   &-head {
     padding: 30px 30px 50px;
     display: flex;
