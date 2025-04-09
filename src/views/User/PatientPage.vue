@@ -17,8 +17,14 @@ onMounted(() => {
 })
 
 // 1. 先在父组件定义 响应式变量
-const count = ref(1)
-const money = ref(100)
+
+const options = [
+  { label: '男', value: 1 },
+  { label: '女', value: 0 }
+]
+
+// 声明选中的性别
+const gender = ref(0)
 </script>
 
 <template>
@@ -48,8 +54,7 @@ const money = ref(100)
         @update:model-value="count = $event"
       ></cp-radio-btn> -->
       <!-- <cp-radio-btn v-model="count"></cp-radio-btn> -->
-
-      <cp-radio-btn v-model:count="count" v-model:money="money"></cp-radio-btn>
+      <cp-radio-btn :options="options" v-model="gender"></cp-radio-btn>
     </div>
   </div>
 </template>
