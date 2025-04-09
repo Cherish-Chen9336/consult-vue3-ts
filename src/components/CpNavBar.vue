@@ -2,9 +2,10 @@
 import { useRouter } from 'vue-router'
 
 // 1. 通过 props 函数 动态设置标题和 右侧文字
-defineProps<{
+const props = defineProps<{
   title?: string
   rightText?: string
+  back?: () => void
 }>()
 
 // 2. 通过 emit 函数触发自定义事件 (点击右侧按钮)
@@ -21,6 +22,7 @@ const router = useRouter()
 
 // 3. 回退， 了解 history.state 信息 监听箭头的点击事件
 const onClickLeft = () => {
+  if (props.back) return props.back()
   if (history.state?.back) {
     router.back()
   } else {

@@ -23,8 +23,14 @@ const options = [
   { label: '女', value: 0 }
 ]
 
-// 声明选中的性别
 const gender = ref(0)
+
+// 控制popup
+const show = ref(false)
+
+const showPopup = () => {
+  show.value = true
+}
 </script>
 
 <template>
@@ -43,18 +49,32 @@ const gender = ref(0)
         <div class="icon"><cp-icon name="user-edit" /></div>
         <div class="tag" v-if="item.defaultFlag === 1">默认</div>
       </div>
-      <div class="patient-add" v-if="list.length < 6">
+      <div class="patient-add" v-if="list.length < 6" @click="showPopup">
         <cp-icon name="user-add" />
         <p>添加患者</p>
       </div>
       <div class="patient-tip">最多添加 6 人</div>
-      <!-- 测试 -->
-      <!-- <cp-radio-btn
-        :modelValue="count"
-        @update:model-value="count = $event"
-      ></cp-radio-btn> -->
-      <!-- <cp-radio-btn v-model="count"></cp-radio-btn> -->
-      <cp-radio-btn :options="options" v-model="gender"></cp-radio-btn>
+
+      <!-- 使用 popup 组件 -->
+      <van-popup v-model:show="show" position="right">
+        <cp-nav-bar title="添加患者" right-text="保存" />
+        <!-- 表单区域 -->
+        <van-form>
+          <van-field label="真实姓名" placeholder="请输入真实姓名" />
+          <van-field label="身份证号" placeholder="请输入身份证号" />
+          <van-field label="性别">
+            <!-- 单选框组件 -->
+            <template #input>
+              <cp-radio-btn :options="options" v-model="gender"></cp-radio-btn>
+            </template>
+          </van-field>
+          <van-field label="默认就诊人">
+            <template #input>
+              <van-checkbox icon-size="18px" />
+            </template>
+          </van-field>
+        </van-form>
+      </van-popup>
     </div>
   </div>
 </template>
@@ -62,6 +82,14 @@ const gender = ref(0)
 <style lang="scss" scoped>
 .patient-page {
   padding: 46px 0 80px;
+  :deep() {
+    .van-popup {
+      width: 100%;
+      height: 100%;
+      padding-top: 46px;
+      box-sizing: border-box;
+    }
+  }
 }
 .patient-list {
   padding: 15px;
@@ -140,5 +168,8 @@ const gender = ref(0)
 .patient-tip {
   color: var(--cp-tag);
   padding: 12px 0;
+}
+.pb4 {
+  padding-bottom: 4px;
 }
 </style>
