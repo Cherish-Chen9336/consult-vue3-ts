@@ -2,17 +2,49 @@
 import { ref, onMounted } from 'vue'
 import type { UserInfo } from '@/types/user'
 import { getUserInfo } from '@/services/user'
+import { useUserStore } from '@/stores'
+import { useRouter } from 'vue-router'
+import { showConfirmDialog } from 'vant'
 
+// 在onMounted 中请求数据
 const userInfo = ref<UserInfo>()
 onMounted(async () => {
   const res = await getUserInfo()
   // console.log(res)
   userInfo.value = res.data
 })
+
+// 快捷工具
+const tools = [
+  { label: '我的问诊', path: '/user/consult' },
+  { label: '我的处方', path: '/' },
+  { label: '家庭档案', path: '/user/patient' },
+  { label: '地址管理', path: '/' },
+  { label: '我的评价', path: '/' },
+  { label: '官方客服', path: '/' },
+  { label: '设置', path: '/' }
+]
+
+// 退出登录
+const store = useUserStore()
+const router = useRouter()
+
+const logout = async () => {
+  // 确认框
+  await showConfirmDialog({
+    title: '温馨提示',
+    message: '您确认退出优医问诊吗？'
+  })
+  // 清除token
+  store.delUser()
+  // 跳转登录页
+  router.push('/login')
+}
 </script>
 
 <template>
   <div class="user-page">
+    <!-- 头部区域 -->
     <div class="user-page-head">
       <div class="top">
         <van-image round fit="cover" :src="userInfo?.avatar" />
@@ -40,6 +72,7 @@ onMounted(async () => {
         </van-col>
       </van-row>
     </div>
+    <!-- 订单信息 -->
     <div class="user-page-order">
       <div class="head">
         <h3>药品订单</h3>
@@ -74,6 +107,23 @@ onMounted(async () => {
         </van-col>
       </van-row>
     </div>
+    <!-- 快捷工具 -->
+    <div class="user-page-group">
+      <h3>快捷工具</h3>
+      <van-cell
+        v-for="(item, i) in tools"
+        :key="item.label"
+        :title="item.label"
+        is-link
+        :to="item.path"
+      >
+        <template #icon
+          ><cp-icon :name="`user-tool-0${i + 1}`"></cp-icon>
+        </template>
+      </van-cell>
+    </div>
+    <!-- 退出登录 -->
+    <a href="javascript:;" class="logout" @click="logout">退出登录</a>
   </div>
 </template>
 
@@ -158,6 +208,30 @@ onMounted(async () => {
         padding-top: 4px;
       }
     }
+  }
+  // 快捷工具
+  &-group {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    h3 {
+      padding-left: 16px;
+      line-height: 44px;
+    }
+    .van-cell {
+      align-items: center;
+    }
+    .cp-icon {
+      font-size: 17px;
+      margin-right: 10px;
+    }
+  }
+  .logout {
+    display: block;
+    margin: 20px auto;
+    width: 100px;
+    text-align: center;
+    color: var(--cp-price);
   }
 }
 </style>
