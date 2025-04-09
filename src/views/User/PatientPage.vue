@@ -15,6 +15,10 @@ const loadList = async () => {
 onMounted(() => {
   loadList()
 })
+
+// 1. 先在父组件定义 响应式变量
+const count = ref(1)
+const money = ref(100)
 </script>
 
 <template>
@@ -38,6 +42,14 @@ onMounted(() => {
         <p>添加患者</p>
       </div>
       <div class="patient-tip">最多添加 6 人</div>
+      <!-- 测试 -->
+      <!-- <cp-radio-btn
+        :modelValue="count"
+        @update:model-value="count = $event"
+      ></cp-radio-btn> -->
+      <!-- <cp-radio-btn v-model="count"></cp-radio-btn> -->
+
+      <cp-radio-btn v-model:count="count" v-model:money="money"></cp-radio-btn>
     </div>
   </div>
 </template>
