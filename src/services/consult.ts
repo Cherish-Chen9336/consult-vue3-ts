@@ -1,5 +1,6 @@
 import type {
   DoctorPage,
+  followType,
   KnowledgePage,
   KnowledgeParams,
   PageParams
@@ -15,3 +16,5 @@ export const getDoctorPage = (params: PageParams) =>
   request<DoctorPage>('/home/page/doc', 'GET', params)
 
 // 关注- 取消关注
+export const followOrUnfollow = (type: followType, id: string) =>
+  request('/like', 'POST', { type, id })

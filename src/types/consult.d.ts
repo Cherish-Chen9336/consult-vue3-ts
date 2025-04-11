@@ -97,3 +97,7 @@ export type DoctorPage = {
   /**列表数据 */
   rows: DoctorList
 }
+
+// 关注接口参数类型 topic百科话题,knowledge百科文章,doc医生,disease疾病
+
+export type followType = 'topic' | 'knowledge' | 'doc' | 'disease'
