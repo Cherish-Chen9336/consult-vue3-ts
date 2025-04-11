@@ -45,12 +45,55 @@ export type KnowledgePage = {
 // 查询参数类型  recommend推荐，fatReduction减脂，food健康饮食like关注医生页面文章
 export type KnowledgeType = 'recommend' | 'fatReduction' | 'food' | 'like'
 
-// 查询参数
-export type KnowledgeParams = {
-  /**推荐类型 */
-  type: KnowledgeType
+// 通用查询参数数据
+export type PageParams = {
   /**当前页 */
   current: number
   /**每页条数 */
   pageSize: number
+}
+
+// 查询参数
+export type KnowledgeParams = PageParams & {
+  /**推荐类型 */
+  type: KnowledgeType
+}
+
+// 医生卡片返回数据
+export type Doctor = {
+  /**医生id */
+  id: string
+  /**医生姓名 */
+  name: string
+  /**医生头像 */
+  avatar: string
+  /**医院名称 */
+  hospitalName: string
+  /**医院等级-名称简写 */
+  gradeName: string
+  /**科室名称*/
+  depName: string
+  /**职称 */
+  positionalTitles: string
+  /**是否关注 1已关注0未关注 */
+  likeFlag: 1 | 0
+  /**接诊费用 */
+  serviceFee: number
+  /**评分 */
+  score: number
+  /**方向 */
+  major: string
+}
+
+// 医生列表
+export type DoctorList = Doctor[]
+
+// 医生分页
+export type DoctorPage = {
+  /**总页数 */
+  pageTotal: number
+  /**总条数 */
+  total: number
+  /**列表数据 */
+  rows: DoctorList
 }
