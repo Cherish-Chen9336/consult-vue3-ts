@@ -22,6 +22,15 @@
   --van-checkbox-size: 14px;
   // 默认按钮文字大小
   --van-button-normal-font-size: 16px;
+  // 搜索框背景颜色
+  --van-search-background: #fff;
+  // 搜索框内容背景颜色
+  --van-search-content-background: #fff;
+  // 搜索框文字颜色
+
+  --van-search-action-text-color: var(--cp-dark);
+  // 搜索框 padding
+  --van-search-padding: 0;
 }
 
 // 全局样式
@@ -47,4 +56,17 @@ ol {
 
 #nprogress .bar {
   background-color: var(--cp-primary) !important;
+}
+
+.van-tabs {
+  .van-tabs__nav {
+    padding: 0 0 15px 0;
+  }
+  .van-tabs__line {
+    width: 20px;
+    background-color: var(--cp-primary);
+  }
+  .van-tab {
+    padding: 0 15px;
+  }
 }

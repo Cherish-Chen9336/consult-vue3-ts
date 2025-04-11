@@ -1,6 +1,19 @@
 <script setup lang="ts">
-import { getPatientList } from '@/services/user'
-import type { PatientList } from '@/types/user'
+import {
+  getPatientList,
+  addPatient,
+  editPatient,
+  delPatient
+} from '@/services/user'
+import type { Patient, PatientList } from '@/types/user'
+import { idCardRule, nameRules } from '@/utils/rules'
+import {
+  showConfirmDialog,
+  showSuccessToast,
+  showToast,
+  type FormInstance
+} from 'vant'
+import { computed } from 'vue'
 import { onMounted } from 'vue'
 import { ref } from 'vue'
 
@@ -23,13 +36,83 @@ const options = [
   { label: '女', value: 0 }
 ]
 
-const gender = ref(0)
-
 // 控制popup
 const show = ref(false)
 
-const showPopup = () => {
+const showPopup = (item?: Patient) => {
+  if (item) {
+    const { id, idCard, name, defaultFlag, gender } = item
+    patient.value = { id, idCard, name, defaultFlag, gender }
+  } else {
+    // 打开弹层之前，清空表单
+    patient.value = { ...initPatient }
+  }
+
   show.value = true
+}
+
+const initPatient: Patient = {
+  name: '',
+  idCard: '',
+  gender: 1,
+  defaultFlag: 0
+}
+
+// 表单数据
+
+const patient = ref<Patient>({ ...initPatient })
+
+const defaultFlag = computed({
+  get: () => (patient.value.defaultFlag === 1 ? true : false),
+  set: (value) => (patient.value.defaultFlag = value ? 1 : 0)
+})
+
+// 保存表单
+const form = ref<FormInstance>()
+
+const onSave = async () => {
+  // 校验表单
+  await form.value?.validate()
+  // 取身份证倒数第二位，判断是奇数还是偶数, 奇数为男性，偶数为女性，并判断与填写的性别是否一致
+  const gender = +patient.value.idCard.slice(-2, -1) % 2
+  if (gender !== patient.value.gender) {
+    await showConfirmDialog({
+      title: '温馨提示',
+      message: '填写的性别和身份证号的不一致\n您确认提交吗？'
+    })
+  }
+  // console.log('校验通过')
+
+  // 添加患者 或 编辑患者
+  // 调用添加接口
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  patient.value.id
+    ? await editPatient(patient.value)
+    : await addPatient(patient.value)
+  // 关闭弹层
+  show.value = false
+  // 重新渲染页面
+  loadList()
+  // 成功提示
+  showSuccessToast(patient.value.id ? '编辑成功' : '添加成功')
+}
+
+// 删除患者
+const onDelete = async () => {
+  if (patient.value.id) {
+    await showConfirmDialog({
+      title: '温馨提示',
+      message: `您确认要删除 ${patient.value.name} 患者信息吗？`
+    })
+  }
+  // 调用接口，传入 id
+  await delPatient(patient.value.id as string)
+  // 关闭弹层
+  show.value = false
+  // 重新渲染页面
+  loadList()
+  // 成功提示
+  showToast('删除成功')
 }
 </script>
 
@@ -40,16 +123,18 @@ const showPopup = () => {
       <div class="patient-item" v-for="item in list" :key="item.id">
         <div class="info">
           <span class="name">{{ item.name }}</span>
-          <span class="id">{{
-            item.idCard.replace(/^(.{6}).+(.{4})$/, '\$1********\$2')
-          }}</span>
+          <span class="id">
+            {{ item.idCard.replace(/^(.{6}).+(.{4})$/, '\$1********\$2') }}
+          </span>
           <span>{{ item.genderValue }}</span>
           <span>{{ item.age }}岁</span>
         </div>
-        <div class="icon"><cp-icon name="user-edit" /></div>
+        <div class="icon">
+          <cp-icon name="user-edit" @click="showPopup(item)" />
+        </div>
         <div class="tag" v-if="item.defaultFlag === 1">默认</div>
       </div>
-      <div class="patient-add" v-if="list.length < 6" @click="showPopup">
+      <div class="patient-add" v-if="list.length < 6" @click="showPopup()">
         <cp-icon name="user-add" />
         <p>添加患者</p>
       </div>
@@ -57,23 +142,49 @@ const showPopup = () => {
 
       <!-- 使用 popup 组件 -->
       <van-popup v-model:show="show" position="right">
-        <cp-nav-bar title="添加患者" right-text="保存" />
+        <cp-nav-bar
+          :title="patient.id ? '编辑患者' : '添加患者'"
+          right-text="保存"
+          @click-right="onSave"
+          :back="
+            () => {
+              show = false
+            }
+          "
+        />
         <!-- 表单区域 -->
-        <van-form>
-          <van-field label="真实姓名" placeholder="请输入真实姓名" />
-          <van-field label="身份证号" placeholder="请输入身份证号" />
+        <van-form ref="form">
+          <van-field
+            v-model="patient.name"
+            label="真实姓名"
+            placeholder="请输入真实姓名"
+            :rules="nameRules"
+          />
+          <van-field
+            v-model="patient.idCard"
+            label="身份证号"
+            placeholder="请输入身份证号"
+            :rules="idCardRule"
+          />
           <van-field label="性别">
             <!-- 单选框组件 -->
             <template #input>
-              <cp-radio-btn :options="options" v-model="gender"></cp-radio-btn>
+              <cp-radio-btn
+                :options="options"
+                v-model="patient.gender"
+              ></cp-radio-btn>
             </template>
           </van-field>
           <van-field label="默认就诊人">
             <template #input>
-              <van-checkbox icon-size="18px" />
+              <van-checkbox v-model="defaultFlag" :icon-size="18" />
             </template>
           </van-field>
         </van-form>
+        <!-- 删除按钮 -->
+        <van-action-bar>
+          <van-action-bar-button @click="onDelete">删除</van-action-bar-button>
+        </van-action-bar>
       </van-popup>
     </div>
   </div>
@@ -171,5 +282,15 @@ const showPopup = () => {
 }
 .pb4 {
   padding-bottom: 4px;
+}
+
+// 删除按钮
+.van-action-bar {
+  padding: 0 10px;
+  margin-bottom: 10px;
+  .van-button {
+    color: var(--cp-price);
+    background-color: var(--cp-bg);
+  }
 }
 </style>

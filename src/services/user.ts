@@ -1,6 +1,12 @@
 // 用户相关的 api接口函数
 
-import type { CodeType, PatientList, User, UserInfo } from '@/types/user'
+import type {
+  CodeType,
+  Patient,
+  PatientList,
+  User,
+  UserInfo
+} from '@/types/user'
 import { request } from '@/utils/request'
 
 // 密码登录接口
@@ -22,3 +28,15 @@ export const getUserInfo = () => request<UserInfo>('/patient/myUser', 'GET')
 // 查询患者详情
 export const getPatientList = () =>
   request<PatientList>('/patient/mylist', 'GET')
+
+// 添加患者信息
+export const addPatient = (patient: Patient) =>
+  request('/patient/add', 'POST', patient)
+
+// 编辑患者
+export const editPatient = (patient: Patient) =>
+  request('/patient/update', 'PUT', patient)
+
+// 删除患者
+export const delPatient = (id: string) =>
+  request(`/patient/del/${id}`, 'DELETE')
